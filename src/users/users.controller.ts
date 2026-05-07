@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Patch } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiOkResponse,
-    ApiOperation,
-    ApiTags,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import type { AuthenticatedUser } from '../auth/authenticated-user.interface';
 import { CurrentUser } from '../auth/current-user.decorator';

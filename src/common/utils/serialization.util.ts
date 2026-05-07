@@ -4,7 +4,9 @@ type DecimalLike = {
   toString(): string;
 };
 
-function decimalToNumber(value: DecimalLike | number | null | undefined): number {
+function decimalToNumber(
+  value: DecimalLike | number | null | undefined,
+): number {
   if (value === null || value === undefined) {
     return 0;
   }
@@ -29,6 +31,8 @@ export function serializeTransaction(transaction: Transaction) {
   };
 }
 
-export function serializeDecimalValue(value: DecimalLike | number | null | undefined): number {
+export function serializeDecimalValue(
+  value: DecimalLike | number | null | undefined,
+): number {
   return decimalToNumber(value);
 }

@@ -82,8 +82,12 @@ describe('TransactionsService', () => {
       { saldo_atual: new Prisma.Decimal(5799.65) },
     ]);
     prisma.transaction.aggregate
-      .mockResolvedValueOnce({ _sum: { valorFinal: new Prisma.Decimal(10000) } })
-      .mockResolvedValueOnce({ _sum: { valorFinal: new Prisma.Decimal(4200.35) } });
+      .mockResolvedValueOnce({
+        _sum: { valorFinal: new Prisma.Decimal(10000) },
+      })
+      .mockResolvedValueOnce({
+        _sum: { valorFinal: new Prisma.Decimal(4200.35) },
+      });
     prisma.user.findUniqueOrThrow.mockResolvedValue({
       saldo_atual: new Prisma.Decimal(5799.65),
     });

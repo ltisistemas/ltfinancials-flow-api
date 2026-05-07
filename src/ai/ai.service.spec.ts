@@ -1,7 +1,7 @@
 import {
-    BadGatewayException,
-    BadRequestException,
-    InternalServerErrorException,
+  BadGatewayException,
+  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AiService } from './ai.service';

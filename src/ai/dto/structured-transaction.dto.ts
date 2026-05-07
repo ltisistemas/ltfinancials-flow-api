@@ -1,7 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDateString, IsEnum, IsNumber, IsString, MaxLength, Min } from 'class-validator';
-import { TransactionStatus, TransactionType } from '../../transactions/transaction.enums';
+import {
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsString,
+  MaxLength,
+  Min,
+} from 'class-validator';
+import {
+  TransactionStatus,
+  TransactionType,
+} from '../../transactions/transaction.enums';
 
 export class StructuredTransactionDto {
   @ApiProperty({ example: 'Conta de internet' })

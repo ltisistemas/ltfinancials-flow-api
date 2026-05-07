@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDateString, IsEnum, IsNumber, IsString, MaxLength, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsString,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { TransactionStatus, TransactionType } from '../transaction.enums';
 
 export class CreateTransactionDto {
@@ -40,7 +47,8 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     example: -220.9,
-    description: 'Mutação aplicada ao saldo atual do usuário ao persistir a transação.',
+    description:
+      'Mutação aplicada ao saldo atual do usuário ao persistir a transação.',
   })
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })

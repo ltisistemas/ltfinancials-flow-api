@@ -1,9 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiOkResponse,
-    ApiOperation,
-    ApiTags,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import { AiService } from './ai.service';
 import { ProcessFinancialInputDto } from './dto/process-financial-input.dto';

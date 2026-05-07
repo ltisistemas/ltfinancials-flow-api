@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuthenticatedUser } from '../auth/authenticated-user.interface';
 import {
-    serializeDecimalValue,
-    serializeTransaction,
+  serializeDecimalValue,
+  serializeTransaction,
 } from '../common/utils/serialization.util';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
@@ -166,39 +166,45 @@ export class TransactionsService {
   async getResumo(currentUser: AuthenticatedUser) {
     await this.usersService.ensureUser(currentUser);
 
-    const [totalEntradasPagas, totalSaidas, user] = await this.prisma.$transaction([
-      this.prisma.transaction.aggregate({
-        where: {
-          userId: currentUser.id,
-          tipo: TransactionType.ENTRADA,
-          status: TransactionStatus.PAGO,
-        },
-        _sum: {
-          valorFinal: true,
-        },
-      }),
-      this.prisma.transaction.aggregate({
-        where: {
-          userId: currentUser.id,
-          tipo: TransactionType.SAIDA,
-        },
-        _sum: {
-          valorFinal: true,
-        },
-      }),
-      this.prisma.user.findUniqueOrThrow({
-        where: { id: currentUser.id },
-      }),
-    ]);
+    const [totalEntradasPagas, totalSaidas, user] =
+      await this.prisma.$transaction([
+        this.prisma.transaction.aggregate({
+          where: {
+            userId: currentUser.id,
+            tipo: TransactionType.ENTRADA,
+            status: TransactionStatus.PAGO,
+          },
+          _sum: {
+            valorFinal: true,
+          },
+        }),
+        this.prisma.transaction.aggregate({
+          where: {
+            userId: currentUser.id,
+            tipo: TransactionType.SAIDA,
+          },
+          _sum: {
+            valorFinal: true,
+          },
+        }),
+        this.prisma.user.findUniqueOrThrow({
+          where: { id: currentUser.id },
+        }),
+      ]);
 
     return {
-      totalEntradasPagas: serializeDecimalValue(totalEntradasPagas._sum.valorFinal),
+      totalEntradasPagas: serializeDecimalValue(
+        totalEntradasPagas._sum.valorFinal,
+      ),
       totalSaidas: serializeDecimalValue(totalSaidas._sum.valorFinal),
       saldoAtual: serializeDecimalValue(user.saldo_atual),
     };
   }
 
-  private buildDateFilter(de?: string, ate?: string): Pick<Prisma.TransactionWhereInput, 'dataVencimento'> | {} {
+  private buildDateFilter(
+    de?: string,
+    ate?: string,
+  ): Pick<Prisma.TransactionWhereInput, 'dataVencimento'> | {} {
     if (!de && !ate) {
       return {};
     }
@@ -232,7 +238,9 @@ export class TransactionsService {
     payload: UpdateTransactionDto,
   ): Prisma.TransactionUncheckedUpdateInput {
     return {
-      ...(payload.descricao !== undefined ? { descricao: payload.descricao } : {}),
+      ...(payload.descricao !== undefined
+        ? { descricao: payload.descricao }
+        : {}),
       ...(payload.valorOriginal !== undefined
         ? { valorOriginal: new Prisma.Decimal(payload.valorOriginal) }
         : {}),
@@ -242,7 +250,9 @@ export class TransactionsService {
       ...(payload.dataVencimento !== undefined
         ? { dataVencimento: new Date(payload.dataVencimento) }
         : {}),
-      ...(payload.categoria !== undefined ? { categoria: payload.categoria } : {}),
+      ...(payload.categoria !== undefined
+        ? { categoria: payload.categoria }
+        : {}),
       ...(payload.tipo !== undefined ? { tipo: payload.tipo } : {}),
       ...(payload.status !== undefined ? { status: payload.status } : {}),
       ...(payload.saldoMutation !== undefined

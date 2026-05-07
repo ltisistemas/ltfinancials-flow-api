@@ -1,10 +1,10 @@
 import { GoogleGenAI } from '@google/genai';
 import {
-    BadGatewayException,
-    BadRequestException,
-    Injectable,
-    InternalServerErrorException,
-    Logger,
+  BadGatewayException,
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { plainToInstance } from 'class-transformer';
@@ -26,7 +26,8 @@ export class AiService {
     this.client = new GoogleGenAI({
       apiKey: configService.getOrThrow<string>('GEMINI_API_KEY'),
     });
-    this.model = configService.get<string>('GEMINI_MODEL') ?? 'gemini-2.0-flash';
+    this.model =
+      configService.get<string>('GEMINI_MODEL') ?? 'gemini-2.0-flash';
   }
 
   async processFinancialInput(payload: ProcessFinancialInputDto) {
@@ -64,8 +65,13 @@ export class AiService {
         throw new BadGatewayException('AI returned invalid JSON');
       }
 
-      this.logger.error('Gemini request failed', error instanceof Error ? error.stack : undefined);
-      throw new InternalServerErrorException('Unable to process financial input with AI');
+      this.logger.error(
+        'Gemini request failed',
+        error instanceof Error ? error.stack : undefined,
+      );
+      throw new InternalServerErrorException(
+        'Unable to process financial input with AI',
+      );
     }
   }
 
@@ -89,13 +95,17 @@ export class AiService {
     const parsed = JSON.parse(rawText) as GeminiResponseShape;
 
     if (!Array.isArray(parsed.transactions)) {
-      throw new BadGatewayException('AI response must contain a transactions array');
+      throw new BadGatewayException(
+        'AI response must contain a transactions array',
+      );
     }
 
     return parsed;
   }
 
-  private validateTransactions(transactions: unknown[]): StructuredTransactionDto[] {
+  private validateTransactions(
+    transactions: unknown[],
+  ): StructuredTransactionDto[] {
     const instances = plainToInstance(StructuredTransactionDto, transactions);
     const errors = instances.flatMap((transaction) =>
       validateSync(transaction, {
@@ -105,7 +115,9 @@ export class AiService {
     );
 
     if (errors.length > 0) {
-      throw new BadGatewayException('AI response does not match the expected transaction schema');
+      throw new BadGatewayException(
+        'AI response does not match the expected transaction schema',
+      );
     }
 
     return instances;

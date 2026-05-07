@@ -58,7 +58,9 @@ describe('AppModule (e2e)', () => {
         }
 
         if (data.saldo_atual?.increment !== undefined) {
-          const currentBalance = new Prisma.Decimal(String(user.saldo_atual ?? 0));
+          const currentBalance = new Prisma.Decimal(
+            String(user.saldo_atual ?? 0),
+          );
           user.saldo_atual = currentBalance.add(data.saldo_atual.increment);
         }
 
@@ -86,7 +88,9 @@ describe('AppModule (e2e)', () => {
           .slice(skip, skip + take);
       }),
       count: jest.fn(async ({ where }) => {
-        return state.transactions.filter((transaction) => matchTransaction(transaction, where)).length;
+        return state.transactions.filter((transaction) =>
+          matchTransaction(transaction, where),
+        ).length;
       }),
       create: jest.fn(async ({ data }) => {
         const created = {
@@ -99,10 +103,16 @@ describe('AppModule (e2e)', () => {
         return created;
       }),
       findFirst: jest.fn(async ({ where }) => {
-        return state.transactions.find((transaction) => matchTransaction(transaction, where)) ?? null;
+        return (
+          state.transactions.find((transaction) =>
+            matchTransaction(transaction, where),
+          ) ?? null
+        );
       }),
       update: jest.fn(async ({ where, data }) => {
-        const transaction = state.transactions.find((entry) => entry.id === where.id);
+        const transaction = state.transactions.find(
+          (entry) => entry.id === where.id,
+        );
         if (!transaction) {
           throw new Error('Transaction not found');
         }
@@ -111,7 +121,9 @@ describe('AppModule (e2e)', () => {
         return transaction;
       }),
       delete: jest.fn(async ({ where }) => {
-        const index = state.transactions.findIndex((entry) => entry.id === where.id);
+        const index = state.transactions.findIndex(
+          (entry) => entry.id === where.id,
+        );
         if (index === -1) {
           throw new Error('Transaction not found');
         }
@@ -123,7 +135,8 @@ describe('AppModule (e2e)', () => {
         const total = state.transactions
           .filter((transaction) => matchTransaction(transaction, where))
           .reduce(
-            (sum, transaction) => sum.add(new Prisma.Decimal(String(transaction.valorFinal))),
+            (sum, transaction) =>
+              sum.add(new Prisma.Decimal(String(transaction.valorFinal))),
             new Prisma.Decimal(0),
           );
 
@@ -143,7 +156,8 @@ describe('AppModule (e2e)', () => {
     process.env.GEMINI_API_KEY = 'test-gemini-key';
     process.env.CORS_ORIGIN = 'http://localhost:3000';
 
-    const { AppModule } = require('../src/app.module') as typeof import('../src/app.module');
+    const { AppModule } =
+      require('../src/app.module') as typeof import('../src/app.module');
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -156,7 +170,9 @@ describe('AppModule (e2e)', () => {
     configureApp(app);
     await app.init();
 
-    accessToken = new JwtService({ secret: process.env.SUPABASE_JWT_SECRET }).sign({
+    accessToken = new JwtService({
+      secret: process.env.SUPABASE_JWT_SECRET,
+    }).sign({
       sub: '7d9152b3-7a49-4b28-9f42-1be3574b9ec2',
       email: 'luiz@example.com',
       role: 'authenticated',
@@ -170,7 +186,9 @@ describe('AppModule (e2e)', () => {
   });
 
   it('GET /health returns 200', async () => {
-    const response = await request(app.getHttpServer()).get('/health').expect(200);
+    const response = await request(app.getHttpServer())
+      .get('/health')
+      .expect(200);
 
     expect(response.body.status).toBe('ok');
   });
