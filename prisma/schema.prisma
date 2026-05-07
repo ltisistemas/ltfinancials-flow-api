@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum TransactionType {
+  entrada
+  saida
+}
+
+enum TransactionStatus {
+  pendente
+  pago
+  historico
+}
+
+model User {
+  id             String        @id @default(uuid()) @db.Uuid
+  email          String        @unique
+  name           String
+  saldo_atual    Decimal       @default(0) @db.Decimal(14, 2)
+  salario_mensal Decimal       @default(0) @db.Decimal(14, 2)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  transactions   Transaction[]
+
+  @@map("users")
+}
+
+model Transaction {
+  id             String            @id @default(uuid()) @db.Uuid
+  userId         String            @db.Uuid
+  descricao      String
+  valorOriginal  Decimal           @db.Decimal(14, 2)
+  valorFinal     Decimal           @db.Decimal(14, 2)
+  dataVencimento DateTime
+  categoria      String
+  tipo           TransactionType
+  status         TransactionStatus
+  saldoMutation  Decimal           @db.Decimal(14, 2)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([dataVencimento])
+  @@index([status])
+  @@index([tipo])
+  @@map("transactions")
+}
