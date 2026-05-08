@@ -1,5 +1,4 @@
 import { INestApplication } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma } from '@prisma/client';
 import request from 'supertest';
@@ -8,7 +7,7 @@ import { PrismaService } from '../src/prisma/prisma.service';
 
 describe('AppModule (e2e)', () => {
   let app: INestApplication;
-  let accessToken: string;
+  let accessToken = '';
 
   const state = {
     users: [] as Array<Record<string, unknown>>,
@@ -28,20 +27,44 @@ describe('AppModule (e2e)', () => {
       return Promise.all(input);
     },
     user: {
-      upsert: jest.fn(async ({ where, update, create }) => {
-        const existing = state.users.find((user) => user.id === where.id);
+      create: jest.fn(async ({ data }) => {
+        const normalizedEmail = String(data.email).toLowerCase();
+        const existing = state.users.find(
+          (user) => String(user.email).toLowerCase() === normalizedEmail,
+        );
+
         if (existing) {
-          Object.assign(existing, update, { updatedAt: new Date() });
-          return existing;
+          const duplicateError = {
+            code: 'P2002',
+          } as Error & { code: string };
+          throw duplicateError;
         }
 
         const created = {
-          ...create,
+          id: '7d9152b3-7a49-4b28-9f42-1be3574b9ec2',
+          ...data,
+          email: normalizedEmail,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
         state.users.push(created);
         return created;
+      }),
+      findUnique: jest.fn(async ({ where }) => {
+        if (where.id) {
+          return state.users.find((entry) => entry.id === where.id) ?? null;
+        }
+
+        if (where.email) {
+          const normalizedEmail = String(where.email).toLowerCase();
+          return (
+            state.users.find(
+              (entry) => String(entry.email).toLowerCase() === normalizedEmail,
+            ) ?? null
+          );
+        }
+
+        return null;
       }),
       update: jest.fn(async ({ where, data }) => {
         const user = state.users.find((entry) => entry.id === where.id);
@@ -169,14 +192,6 @@ describe('AppModule (e2e)', () => {
     app = moduleFixture.createNestApplication();
     configureApp(app);
     await app.init();
-
-    accessToken = new JwtService({
-      secret: process.env.SUPABASE_JWT_SECRET,
-    }).sign({
-      sub: '7d9152b3-7a49-4b28-9f42-1be3574b9ec2',
-      email: 'luiz@example.com',
-      role: 'authenticated',
-    });
   });
 
   afterAll(async () => {
@@ -197,7 +212,76 @@ describe('AppModule (e2e)', () => {
     await request(app.getHttpServer()).get('/users/me').expect(401);
   });
 
-  it('creates and lists transactions with a valid mock token', async () => {
+  it('POST /auth/register creates user and returns token', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        name: 'Luiz Felipe',
+        email: 'luiz@example.com',
+        password: 'Senha@123',
+      })
+      .expect(201);
+
+    expect(response.body.user).toMatchObject({
+      email: 'luiz@example.com',
+      name: 'Luiz Felipe',
+    });
+    expect(response.body.user.password_hash).toBeUndefined();
+    expect(typeof response.body.accessToken).toBe('string');
+
+    accessToken = response.body.accessToken as string;
+  });
+
+  it('POST /auth/register rejects duplicate email', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        name: 'Outro Nome',
+        email: 'luiz@example.com',
+        password: 'Senha@123',
+      })
+      .expect(409);
+  });
+
+  it('POST /auth/register rejects extra fields', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/register')
+      .send({
+        name: 'Novo Usuário',
+        email: 'novo@example.com',
+        password: 'Senha@123',
+        role: 'admin',
+      })
+      .expect(400);
+  });
+
+  it('POST /auth/login authenticates with valid credentials', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'luiz@example.com',
+        password: 'Senha@123',
+      })
+      .expect(200);
+
+    expect(response.body.user).toMatchObject({
+      email: 'luiz@example.com',
+      name: 'Luiz Felipe',
+    });
+    expect(typeof response.body.accessToken).toBe('string');
+  });
+
+  it('POST /auth/login rejects invalid credentials', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'luiz@example.com',
+        password: 'SenhaErrada',
+      })
+      .expect(401);
+  });
+
+  it('creates and lists transactions with a valid auth token', async () => {
     await request(app.getHttpServer())
       .post('/transactions')
       .set('Authorization', `Bearer ${accessToken}`)

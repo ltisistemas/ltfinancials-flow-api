@@ -23,6 +23,7 @@ model User {
   id             String        @id @default(uuid()) @db.Uuid
   email          String        @unique
   name           String
+  password_hash  String?
   saldo_atual    Decimal       @default(0) @db.Decimal(14, 2)
   salario_mensal Decimal       @default(0) @db.Decimal(14, 2)
   createdAt      DateTime      @default(now())

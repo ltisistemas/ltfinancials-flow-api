@@ -15,10 +15,13 @@ function decimalToNumber(
 }
 
 export function serializeUser(user: User) {
+  const { password_hash, ...safeUser } = user;
+  void password_hash;
+
   return {
-    ...user,
-    saldo_atual: decimalToNumber(user.saldo_atual),
-    salario_mensal: decimalToNumber(user.salario_mensal),
+    ...safeUser,
+    saldo_atual: decimalToNumber(safeUser.saldo_atual),
+    salario_mensal: decimalToNumber(safeUser.salario_mensal),
   };
 }
 

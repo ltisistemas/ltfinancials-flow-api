@@ -14,10 +14,15 @@
 
 ## Autenticacao
 
+Cadastro e login sao publicos:
+
+- `POST /auth/register`
+- `POST /auth/login`
+
 Rotas privadas exigem header:
 
 ```http
-Authorization: Bearer <SUPABASE_JWT>
+Authorization: Bearer <JWT_DA_API>
 ```
 
 ## Formato padrao de erro
@@ -52,7 +57,58 @@ Sem body.
 
 ---
 
-## 2) Users
+## 2) Auth
+
+### POST /auth/register
+Publica.
+
+#### Payload
+```json
+{
+  "name": "Luiz Felipe",
+  "email": "luiz@example.com",
+  "password": "Senha@123"
+}
+```
+
+#### Response 201
+```json
+{
+  "accessToken": "<jwt>",
+  "user": {
+    "id": "7d9152b3-7a49-4b28-9f42-1be3574b9ec2",
+    "email": "luiz@example.com",
+    "name": "Luiz Felipe"
+  }
+}
+```
+
+### POST /auth/login
+Publica.
+
+#### Payload
+```json
+{
+  "email": "luiz@example.com",
+  "password": "Senha@123"
+}
+```
+
+#### Response 200
+```json
+{
+  "accessToken": "<jwt>",
+  "user": {
+    "id": "7d9152b3-7a49-4b28-9f42-1be3574b9ec2",
+    "email": "luiz@example.com",
+    "name": "Luiz Felipe"
+  }
+}
+```
+
+---
+
+## 3) Users
 
 ### GET /users/me
 Privada.
@@ -99,7 +155,7 @@ Privada.
 
 ---
 
-## 3) Transactions
+## 4) Transactions
 
 Enums usados:
 
@@ -248,7 +304,7 @@ Sem body.
 
 ---
 
-## 4) AI
+## 5) AI
 
 ### POST /ai/process-financial-input
 Privada.
@@ -292,7 +348,7 @@ Privada.
 
 ## Observacoes para o front
 
-- Sempre enviar JWT do Supabase em todas as rotas privadas.
+- Sempre enviar JWT recebido em `/auth/register` ou `/auth/login` nas rotas privadas.
 - Campos monetarios chegam como `number` no JSON.
 - Datas sao ISO string UTC.
 - Para `PATCH`, envie apenas os campos alterados.

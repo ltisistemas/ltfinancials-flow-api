@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AuthenticatedUser } from '../auth/authenticated-user.interface';
 import { serializeUser } from '../common/utils/serialization.util';
@@ -10,23 +10,15 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async ensureUser(currentUser: AuthenticatedUser) {
-    const email = currentUser.email || `${currentUser.id}@supabase.local`;
-    const name = currentUser.name || email.split('@')[0] || 'Usuario';
-
-    return this.prisma.user.upsert({
+    const user = await this.prisma.user.findUnique({
       where: { id: currentUser.id },
-      update: {
-        email,
-        ...(currentUser.name ? { name: currentUser.name } : {}),
-      },
-      create: {
-        id: currentUser.id,
-        email,
-        name,
-        saldo_atual: new Prisma.Decimal(0),
-        salario_mensal: new Prisma.Decimal(0),
-      },
     });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return user;
   }
 
   async getMe(currentUser: AuthenticatedUser) {

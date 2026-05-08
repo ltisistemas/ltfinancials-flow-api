@@ -1,12 +1,12 @@
 # LT Financials Flow API
 
-API NestJS para gestão financeira pessoal com autenticação via Supabase JWT, persistência em PostgreSQL com Prisma e processamento de linguagem natural com Gemini.
+API NestJS para gestão financeira pessoal com autenticação via JWT (email e senha), persistência em PostgreSQL com Prisma e processamento de linguagem natural com Gemini.
 
 ## Stack
 
 - NestJS 11
 - Prisma ORM + PostgreSQL (Supabase)
-- Supabase Auth JWT
+- JWT com cadastro e login por email/senha
 - Gemini via `@google/genai`
 - Swagger / OpenAPI
 - Jest para testes unitários e e2e
@@ -20,9 +20,7 @@ PORT=3001
 NODE_ENV=development
 DATABASE_URL=
 DIRECT_URL=
-SUPABASE_URL=
 SUPABASE_JWT_SECRET=
-SUPABASE_SERVICE_ROLE_KEY=
 GEMINI_API_KEY=
 GEMINI_MODEL=gemini-2.0-flash
 CORS_ORIGIN=http://localhost:3000
@@ -88,6 +86,30 @@ npm run build
 ### Health
 
 - `GET /health` público
+
+### Autenticação
+
+- `POST /auth/register` (público)
+- `POST /auth/login` (público)
+
+Exemplo `POST /auth/register`:
+
+```json
+{
+  "name": "Luiz Felipe",
+  "email": "luiz@example.com",
+  "password": "Senha@123"
+}
+```
+
+Exemplo `POST /auth/login`:
+
+```json
+{
+  "email": "luiz@example.com",
+  "password": "Senha@123"
+}
+```
 
 ### Usuário autenticado
 
@@ -159,7 +181,7 @@ Resposta esperada:
 
 ## Segurança e arquitetura
 
-- Rotas privadas protegidas por JWT do Supabase.
+- Rotas privadas protegidas por JWT emitido pelos endpoints de autenticação da API.
 - Filtro global de exceções com payload consistente.
 - DTOs com validação global e remoção de campos não permitidos.
 - Prisma centralizado em módulo global.

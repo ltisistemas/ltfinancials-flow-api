@@ -20,7 +20,7 @@ export class SupabaseJwtStrategy extends PassportStrategy(Strategy) {
       id: payload.sub,
       email: payload.email ?? '',
       role: payload.role,
-      name: payload.user_metadata?.name,
+      name: payload.name ?? payload.user_metadata?.name,
     };
   }
 }
