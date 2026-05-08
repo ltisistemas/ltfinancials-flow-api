@@ -16,9 +16,13 @@ function decimalToNumber(
 
 export function serializeUser(user: User) {
   return {
-    ...user,
+    id: user.id,
+    email: user.email,
+    name: user.name,
     saldo_atual: decimalToNumber(user.saldo_atual),
     salario_mensal: decimalToNumber(user.salario_mensal),
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
   };
 }
 

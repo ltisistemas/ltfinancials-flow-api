@@ -35,7 +35,7 @@ export function configureApp(app: INestApplication): void {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('LT Financials Flow API')
     .setDescription(
-      'API financeira pessoal com autenticação Supabase JWT, Prisma e processamento de texto com Gemini.',
+      'API financeira pessoal com autenticação JWT, Prisma e processamento de texto com Gemini.',
     )
     .setVersion('1.0.0')
     .addBearerAuth(
@@ -43,7 +43,7 @@ export function configureApp(app: INestApplication): void {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        description: 'JWT emitido pelo Supabase Auth.',
+        description: 'JWT emitido pelos endpoints de autenticação da API.',
       },
       'bearer',
     )
