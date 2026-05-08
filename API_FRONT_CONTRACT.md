@@ -62,6 +62,11 @@ Sem body.
 ### POST /auth/register
 Publica.
 
+#### Regras de Validação
+- `name`: string, obrigatório (min: 2, max: 120 caracteres)
+- `email`: string, formato de email válido, obrigatório (max: 255 caracteres). Deve ser único (retorna 409 caso já exista).
+- `password`: string, obrigatória (min: 8, max: 128 caracteres)
+
 #### Payload
 ```json
 {
